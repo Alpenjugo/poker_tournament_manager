@@ -36,7 +36,7 @@ MongoClient.connect(process.env.MONGODB_URI, {
     console.log('✅ Connected to MongoDB');
     const db = client.db('alpenjugo');
 
-    // optional: app.locals.db = db;
+   app.locals.db = db;
 
     // Start server ONLY after Mongo is connected
     app.listen(port, () => {
