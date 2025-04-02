@@ -60,4 +60,26 @@ router.post('/users/login', async (req, res) => {
   }
 });
 
+/**
+ * Test-Endpunkt: Gibt alle User zurück
+ * 👉 Nur zum Testen! Danach wieder löschen oder sichern!
+ */
+router.get('/test-users', async (req, res) => {
+   try {
+     const db = req.app.locals.db;
+     const users = await db.collection(constants.USERS_COLLECTION).find().toArray();
+ 
+     // Optional: Passwörter ausblenden
+     users.forEach(user => delete user[constants.USERS_PASSWORD]);
+ 
+     res.json({
+       count: users.length,
+       users: users
+     });
+   } catch (err) {
+     console.error('❌ Fehler beim Test-User-Endpunkt:', err);
+     res.status(500).json({ error: 'Fehler beim Abrufen der Benutzer' });
+   }
+ });
+ 
 module.exports = router;
