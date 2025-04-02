@@ -6,6 +6,7 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "server": "nodemon src/index.js -e css,js"
+    "start": "node src/index.js"
   },
   "jest": {
     "testEnvironment": "node"
