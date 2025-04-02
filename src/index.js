@@ -1,67 +1,49 @@
-const path = require('path')
 const express = require('express');
+const { MongoClient } = require('mongodb');
+const path = require('path');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-
 require('dotenv').config();
 
-const { MongoClient } = require('mongodb');
-const uri = process.env.MONGODB_URI;
 const app = express();
-const port = process.env.port || 5050;
+const port = process.env.PORT || 10000;
 
 const tournamentRouter = require('./routers/tournamentRouter');
 const userRouter = require('./routers/userRouter');
 
-// Paths for Express config
-const publicDirectoryPath = path.join(__dirname, '../public')
-
 app.use(cors());
 app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 app.use(userRouter);
 app.use(tournamentRouter);
 
-// Serve static files from the Vue build
+// Serve static Vue build
 const publicPath = path.join(__dirname, '../dist');
 app.use(express.static(publicPath));
-
-// Handle SPA routing, redirect all unmatched routes to index.html
 app.get('*', (req, res) => {
   res.sendFile(path.join(publicPath, 'index.html'));
 });
 
-
-//body parser middleware
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
-
-MongoClient.connect(uri, {
+// MongoDB connection + server start
+MongoClient.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-  tls: true, // ← WICHTIG
-  tlsAllowInvalidCertificates: false
+  tls: true,
+  tlsAllowInvalidCertificates: true
 })
-
   .then(client => {
-    console.log("✅ Connected to MongoDB");
+    console.log('✅ Connected to MongoDB');
+    const db = client.db('alpenjugo');
 
-    const db = client.db("alpenjugo"); // ← deine Datenbank
+    // optional: app.locals.db = db;
 
-    // Optional: Zugriff auf Collections
-    // const users = db.collection("users");
-    // const tournaments = db.collection("tournaments");
-
-    // Jetzt kannst du den DB-Zugang an deine Router weitergeben, falls nötig
-
-    // Starte den Server erst nach erfolgreicher Verbindung:
+    // Start server ONLY after Mongo is connected
     app.listen(port, () => {
-      console.log("🚀 Server is up on the port " + port);
+      console.log('🚀 Server is up on port', port);
     });
   })
-  .catch(error => {
-    console.error("❌ MongoDB connection failed:", error);
+  .catch(err => {
+    console.error('❌ MongoDB connection failed:', err);
+    process.exit(1); // Exit to avoid port conflict
   });
-
-app.listen(port, () => {
-   console.log("server is up on the port " + port);
-});
