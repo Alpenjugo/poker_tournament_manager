@@ -5,6 +5,8 @@ const cors = require('cors');
 
 require('dotenv').config();
 
+const { MongoClient } = require('mongodb');
+const uri = process.env.MONGODB_URI;
 const app = express();
 const port = process.env.port || 5050;
 
@@ -32,6 +34,27 @@ app.get('*', (req, res) => {
 //body parser middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
+MongoClient.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(client => {
+    console.log("✅ Connected to MongoDB");
+
+    const db = client.db("alpenjugo"); // ← deine Datenbank
+
+    // Optional: Zugriff auf Collections
+    // const users = db.collection("users");
+    // const tournaments = db.collection("tournaments");
+
+    // Jetzt kannst du den DB-Zugang an deine Router weitergeben, falls nötig
+
+    // Starte den Server erst nach erfolgreicher Verbindung:
+    app.listen(port, () => {
+      console.log("🚀 Server is up on the port " + port);
+    });
+  })
+  .catch(error => {
+    console.error("❌ MongoDB connection failed:", error);
+  });
 
 app.listen(port, () => {
    console.log("server is up on the port " + port);
