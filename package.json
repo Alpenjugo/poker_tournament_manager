@@ -3,10 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
+   "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
+<<<<<<< HEAD
     "server": "nodemon src/index.js -e css,js",
     "start": "node src/index.js"
+=======
+   "server": "nodemon src/index.js -e css,js",
+   "start": "node src/index.js"
+>>>>>>> 93782f4 (Set Node version to 18 for Render compatibility)
   },
   "jest": {
     "testEnvironment": "node"
