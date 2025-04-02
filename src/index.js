@@ -35,7 +35,13 @@ app.get('*', (req, res) => {
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-MongoClient.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
+MongoClient.connect(uri, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  tls: true, // ← WICHTIG
+  tlsAllowInvalidCertificates: false
+})
+
   .then(client => {
     console.log("✅ Connected to MongoDB");
 
