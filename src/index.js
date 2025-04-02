@@ -8,13 +8,11 @@ require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 10000;
 
-// Middleware vor DB
 app.use(cors());
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-// MongoDB-Verbindung + Serverstart
 MongoClient.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -26,25 +24,24 @@ MongoClient.connect(process.env.MONGODB_URI, {
     const db = client.db('alpenjugo');
     app.locals.db = db;
 
-    // 🔗 Routen erst NACH Mongo-Verbindung laden
-    const tournamentRouter = require('./routers/tournamentRouter');
+    // 👉 Jetzt, wo DB verbunden ist: Router einbinden
     const userRouter = require('./routers/userRouter');
+    const tournamentRouter = require('./routers/tournamentRouter');
     app.use(userRouter);
     app.use(tournamentRouter);
 
-    // 📦 Vue Build ausliefern
+    // 👉 Danach: statische Dateien + Vue-Fallback
     const publicPath = path.join(__dirname, '../dist');
     app.use(express.static(publicPath));
     app.get('*', (req, res) => {
       res.sendFile(path.join(publicPath, 'index.html'));
     });
 
-    // ✅ Server starten
     app.listen(port, () => {
       console.log('🚀 Server is up on port', port);
     });
   })
   .catch(err => {
     console.error('❌ MongoDB connection failed:', err);
-    process.exit(1); // Im Fehlerfall App stoppen
+    process.exit(1);
   });
